@@ -149,12 +149,17 @@
             $levelsArray[$i]['currentLevelID'] = getName($currentLevel--, $conn).'ID';
         }
 
-        for($j = 0; $j > $diff ; $j++)
-        {
-            $levelsArray[$j]['currentReversedLevel'] = getName($searchingLevel++, $conn);
-            $levelsArray[$j]['currentReversedID'] = getName($currentLevel++, $conn).'ID';
-        }
-    
+        // for($j = $diff; $j < 0 ; $j++)
+        // {
+        //     $levelsArray[$j]['currentReversedLevel'] = getName($searchingLevel++, $conn);
+        //     $levelsArray[$j]['currentReversedID'] = getName($currentLevel, $conn).'ID';
+        // }                                      
+         
+        $levelZero = getName($searchingLevel, $conn);
+        $levelZeroID = getName($searchingLevel, $conn).'ID';
+        
+        $levelOne = getName($searchingLevel+1, $conn);
+        $levelOneID = getName($searchingLevel+1, $conn).'ID';
 
         if($diff >= 0){
             if($diff == 0){
@@ -181,9 +186,13 @@
             }
         }else{
             if($diff == -1){
-                $name = $levelsArray[0]["currentLevelname"];
-                $foreignKey = $levelsArray[0]["currentLevelID"];
-                $sql = "SELECT name FROM subcounty WHERE id IN (SELECT subcountyID FROM location WHERE id = 1)";
+                // $name = $levelsArray[-1]["currentReversedLevel"];
+                // $foreignKey = $levelsArray[-1]["currentReversedID"];
+                
+                // $sql = "SELECT name FROM subcounty WHERE id IN (SELECT subcountyID FROM location WHERE id = 1)";
+                $sql = "SELECT name FROM $levelZero WHERE id IN (SELECT $levelZeroID FROM $levelOne WHERE id = $id)";
+                echo $sql;
+                exit;
             }
             else if($diff == -2){
                 $sql = "SELECT name FROM subcounty WHERE id IN (SELECT subcountyID FROM location WHERE id IN (SELECT locationID FROM ward WHERE id = 1))";
