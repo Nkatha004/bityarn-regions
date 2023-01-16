@@ -147,49 +147,59 @@
         {
             $levelsArray[$i]['currentLevelname'] = getName($searchingLevel--, $conn);
             $levelsArray[$i]['currentLevelID'] = getName($currentLevel--, $conn).'ID';
-
-
-//             $levelsArray = [
-//                 'currentLevelname' => getName($searchingLevel--, $conn),
-//                 'currentLevelID' => getName($searchingLevel--, $conn).'ID'
-//             ];
-
-
         }
-         print_r($levelsArray);
-//          exit;
 
-        $currentLevelname = getName($searchingLevel, $conn);//county
-        $currentLevelnameID= getName($currentLevel, $conn).'ID'; //countryID
-        $currentLevelOneName = getName($searchingLevel-1, $conn);   //table country from county
-        $currentLevelOneID = getName($searchingLevel-1, $conn).'ID';
-        $currentLevelTwoName = getName($searchingLevel-2, $conn);   //table county from location
-        $currentLevelTwoID= getName($searchingLevel-2, $conn).'ID';   //table countryID
-        $currentLevelThreeID = getName($searchingLevel-3, $conn).'ID';
-        $currentLevelThreeName = getName($searchingLevel-3, $conn);
+        for($j = 0; $j > $diff ; $j++)
+        {
+            $levelsArray[$j]['currentReversedLevel'] = getName($searchingLevel++, $conn);
+            $levelsArray[$j]['currentReversedID'] = getName($currentLevel++, $conn).'ID';
+        }
+    
 
-        $name = $levelsArray[0]["currentLevelname"];
-        $foreignKey = $levelsArray[0]["currentLevelID"];
-
-        if($diff == abs(0)){
-            $sql = "SELECT name FROM $levelsArray[0]['currentLevelname'] WHERE id = $levelsArray[0]['currentLevelID'] ";
-            echo $sql;
-            exit;
-        }else if($diff == abs(1)){
-            $sql = " SELECT name FROM $levelsArray[1]['currentLevelname'] WHERE $levelsArray[1]['currentLevelID'] = $id ";
-        }else if($diff == abs(2)){
-            $sql = " SELECT name FROM $levelsArray[2]['currentLevelname'] WHERE $levelsArray[2]['currentLevelID'] IN (SELECT id FROM $levelsArray[2]['currentLevelname'] WHERE $levelsArray[2]['currentLevelID'] = $id)";
-        }else if($diff == abs(3)){
-            $sql = " SELECT name FROM $levelsArray[3]['currentLevelname'] WHERE $levelsArray[3]['currentLevelID'] IN (SELECT id FROM $levelsArray[3]['currentLevelname'] WHERE $levelsArray[3]['currentLevelID'] IN( SELECT id FROM $levelsArray[3]['currentLevelname'] WHERE $levelsArray[3]['currentLevelID'] = $id))";
+        if($diff >= 0){
+            if($diff == 0){
+                $name = $levelsArray[0]["currentLevelname"];
+                $foreignKey = $levelsArray[0]["currentLevelID"];
+                $sql = "SELECT name FROM $name WHERE id = $id ";
+                
+            }else if($diff == 1){
+                $name = $levelsArray[1]["currentLevelname"];
+                $foreignKey = $levelsArray[1]["currentLevelID"];
+                $sql = " SELECT name FROM $name WHERE $foreignKey = $id ";
+            }else if($diff == 2){
+                $name = $levelsArray[2]["currentLevelname"];
+                $foreignKey = $levelsArray[2]["currentLevelID"];
+                $sql = " SELECT name FROM $name WHERE $foreignKey IN (SELECT id FROM $name WHERE $foreignKey = $id)";
+            }else if($diff == 3){
+                $name = $levelsArray[3]["currentLevelname"];
+                $foreignKey = $levelsArray[3]["currentLevelID"];
+                $sql = " SELECT name FROM $name WHERE $foreignKey IN (SELECT id FROM $name WHERE $foreignKey IN( SELECT id FROM $name WHERE $foreignKey = $id))";
+            }else{
+                $name = $levelsArray[4]["currentLevelname"];
+                $foreignKey = $levelsArray[4]["currentLevelID"];
+                $sql = " SELECT name FROM $name WHERE $foreignKey IN (SELECT id FROM $name WHERE $foreignKey IN( SELECT id FROM $name WHERE $foreignKey IN(SELECT id FROM $name WHERE $foreignKey = $id)))";
+            }
         }else{
-            $sql = " SELECT name FROM $levelsArray[4]['currentLevelname'] WHERE $levelsArray[4]['currentLevelID'] IN (SELECT id FROM $levelsArray[4]['currentLevelname'] WHERE $levelsArray[4]['currentLevelID'] IN( SELECT id FROM $levelsArray[4]['currentLevelname'] WHERE $levelsArray[4]['currentLevelID'] IN(SELECT id FROM $levelsArray[4]['currentLevelname'] WHERE $levelsArray[4]['currentLevelID'] = $id)))";
+            if($diff == -1){
+                $name = $levelsArray[0]["currentLevelname"];
+                $foreignKey = $levelsArray[0]["currentLevelID"];
+                $sql = "SELECT name FROM subcounty WHERE id IN (SELECT subcountyID FROM location WHERE id = 1)";
+            }
+            else if($diff == -2){
+                $sql = "SELECT name FROM subcounty WHERE id IN (SELECT subcountyID FROM location WHERE id IN (SELECT locationID FROM ward WHERE id = 1))";
+            }else if($diff == -3){
+                $sql = "SELECT name FROM county WHERE id IN (SELECT countyID FROM subcounty WHERE id IN (SELECT subcountyID FROM location WHERE id IN (SELECT locationID FROM ward WHERE id = 1)))";
+            }
+            else {
+                $sql = "SELECT name FROM country WHERE id IN (SELECT countryID FROM county WHERE id IN (SELECT countyID FROM subcounty WHERE id IN (SELECT subcountyID FROM location WHERE id IN (SELECT locationID FROM ward WHERE id = 1))))";
+            }
         }
 
         $result = mysqli_query($conn, $sql);
         //print_r($result);
         while ($row = mysqli_fetch_array($result)) {
-           echo $row['name'];
-           echo "<br>";
+            echo $row['name'];
+            echo "<br>";
 
         }
     }
