@@ -5,23 +5,23 @@
   define("db_database", "counties");
   $conn = mysqli_connect(db_server, db_user, db_password, db_database);
 //   $id = $_POST['levels'];
-   function Levels($currentLevelID, $conn){
+    function Levels($currentLevelID, $conn){
        switch($currentLevelID){
            case 1:
-              $sql = "SELECT id,name FROM country";
-                  break;
+                $sql = "SELECT id,name FROM country";
+                break;
            case 2:
-               $sql = "SELECT id,name FROM county";
-                   break;
+                $sql = "SELECT id,name FROM county";
+                break;
            case 3:
-              $sql = "SELECT id,name FROM subcounty";
-                  break;
+                $sql = "SELECT id,name FROM subcounty";
+                break;
            case 4:
-               $sql =" SELECT id,name FROM `location`";
-                   break;
+                $sql =" SELECT id,name FROM `location`";
+                break;
            case 5:
-               $sql = "SELECT id,name FROM ward";
-                   break;
+                $sql = "SELECT id,name FROM ward";
+                break;
        }
         $result = mysqli_query($conn, $sql);
         return $result;
@@ -157,7 +157,8 @@
         }   
         echo "<pre>";
         print_r($levelsArray);
-        echo "</pre>";                              
+        echo "</pre>";    
+        // exit;                          
 
         if($diff >= 0){
             if($diff == 0){
@@ -190,20 +191,24 @@
                 
                 // $sql = "SELECT name FROM subcounty WHERE id IN (SELECT subcountyID FROM location WHERE id = 1)";
                 $sql = "SELECT name FROM $currentSearchBy WHERE id IN (SELECT $currentReversedID FROM $currentLevelReversed WHERE id = $id)";
-                echo $sql;
-                exit;
-                
             }
             else if($diff == -2){
                 $currentSearchBy = $levelsArray[-2]["currentSearchBy"];
                 $currentLevelReversed = $levelsArray[-2]["currentLevelReversed"];
                 $currentReversedID = $levelsArray[-2]["currentReversedID"];
-                
+                $currentSearchByTwo = $levelsArray[-1]["currentSearchBy"];
+                $currentReversedIDTwo = $levelsArray[-1]["currentReversedID"];
+
                 // $sql = "SELECT name FROM subcounty WHERE id IN (SELECT subcountyID FROM location WHERE id IN (SELECT locationID FROM ward WHERE id = 1))";
-                $sql = "SELECT name FROM $currentSearchBy WHERE id IN (SELECT $currentReversedID FROM $currentSearchBy WHERE id IN (SELECT $currentReversedID FROM $currentLevelReversed WHERE id = $id))";
+                $sql = "SELECT name FROM $currentSearchBy WHERE id IN (SELECT $currentReversedID FROM $currentSearchByTwo WHERE id IN (SELECT $currentReversedIDTwo FROM $currentLevelReversed WHERE id = $id))";
                 echo $sql;
+                exit;
                 
             }else if($diff == -3){
+                $currentSearchBy = $levelsArray[-3]["currentSearchBy"];
+                $currentLevelReversed = $levelsArray[-3]["currentLevelReversed"];
+                $currentReversedID = $levelsArray[-3]["currentReversedID"];
+                
                 $sql = "SELECT name FROM county WHERE id IN (SELECT countyID FROM subcounty WHERE id IN (SELECT subcountyID FROM location WHERE id IN (SELECT locationID FROM ward WHERE id = 1)))";
             }
             else {
