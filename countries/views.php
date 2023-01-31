@@ -4,7 +4,7 @@ $id = $_POST['levels'];
 
 $result = Levels($id, $conn);
 ?>
-<form action = "counties.php?id=<?php echo $id;?>" method = 'post'>
+<form action = "resultDisplay.php?id=<?php echo $id;?>" method = 'post'>
     <?php
     echo "<label for='searchby'>Search by: </label><select name = 'counties'>";
     while ($row = mysqli_fetch_array($result)) {
